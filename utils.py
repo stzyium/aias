@@ -21,16 +21,12 @@ def manage_subfolders_with_sections_windows(folder_path):
                 for name in dirs:
                     os.rmdir(os.path.join(root, name))
             os.rmdir(folder_to_delete)
-            print(f"Deleted unwanted folder: {folder_to_delete}")
         except Exception as e:
             print(f"Failed to delete {folder_to_delete}: {e}")
-
     missing_classes = required_classes - current_folders
     for folder in missing_classes:
         folder_to_create = os.path.join(folder_path, folder)
         os.makedirs(folder_to_create, exist_ok=True)
-        print(f"Created missing class folder: {folder_to_create}")
-
     for class_folder in required_classes:
         class_path = os.path.join(folder_path, class_folder)
         os.makedirs(class_path, exist_ok=True)
@@ -46,16 +42,13 @@ def manage_subfolders_with_sections_windows(folder_path):
                     for name in dirs:
                         os.rmdir(os.path.join(root, name))
                 os.rmdir(section_to_delete)
-                print(f"Deleted unwanted section: {section_to_delete}")
             except Exception as e:
                 print(f"Failed to delete section {section_to_delete}: {e}")
         missing_sections = required_sections - current_sections
         for section in missing_sections:
             section_to_create = os.path.join(class_path, section)
             os.makedirs(section_to_create, exist_ok=True)
-            print(f"Created missing section: {section_to_create}")
-
-    print("Folder and section management complete.")
+    return 200
 
 def idtoint(id):
     return int(id[:-1]+str(ord(id[-1])))
