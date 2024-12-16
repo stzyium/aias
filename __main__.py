@@ -219,7 +219,7 @@ def exception(exc_type, exc_value, exc_tb):
 try:
     sys.excepthook = exception
     sys.stdout.write(f"{GRAY}[PYTHON {sys.version.partition('(')[0].strip()}]{RESET} {WHITE}AiBAS Beta Build v{__version__} (windows) [Compiled using PyInstaller==6.11.1]{RESET}\n")
-    sys.stdout.write(f"{WHITE}This is an Alpha version. It lacks many features, may contain bugs, and is under active development.{RESET}\n")
+    sys.stdout.write(f"{WHITE}This is an BETA version. It lacks many features, may contain bugs, and is under active development.{RESET}\n")
     sys.stdout.write(f"{YELLOW}[Known limitations include incomplete functionality and potential instability.]{RESET}\n\n")
     sys.stdout.write(f"{GRAY}[{datetime.datetime.now().strftime('%d-%m-%Y')}]{RESET} Setting up data directories and configurations [...]{RESET}\r")
     sys.stdout.flush()
