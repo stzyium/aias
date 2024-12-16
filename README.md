@@ -1,12 +1,12 @@
-# aias
- Ai based Smart Attendance System
-## run the appilcation and visit http://127.0.0.1:8000/
+# Aias
+ Ai based Smart adn Automated Attendance System
+## Run the appilcation and visit http://127.0.0.1:8000/
  Version v1.24 beta
 ## [Features]
 - Automated system
 - Attendance tracking
 - Detailed camera frame
-## [ADDED]
+## [ADDED (v1.24-beta)]
 - Dashboard
 - Image viewer
 - Attendance viewer
@@ -14,7 +14,7 @@
 - Settings
 - Asynchronous API server
 - and more
-## [CHANGED]
+## [CHANGED (v1.24-beta)]
 - Improved UI/UX
 - Now using Api for some tasks instead of websocket
 - Improved performance
