@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Logs</title>
+    <style>
+        /* Base styling */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #121212;
+            margin: 0;
+            padding: 0;
+            color: #f0f0f0;
+        }
+
+        .container {
+            width: 90%;
+            overflow-y: auto;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            border: 1px solid #fff; /* Slight white border around the container */
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            color: #f7a800;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #444;
+            font-size: 16px;
+        }
+
+        th {
+            background-color: #333;
+            color: #f7a800;
+        }
+
+        td {
+            background-color: #2a2a2a;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #3a3a3a;
+        }
+
+        tr:hover td {
+            background-color: #444;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .button {
+            padding: 12px 24px;
+            background-color: #f7a800;
+            border: 1px solid #f7a800;
+            border-radius: 25px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .button:hover {
+            background-color: #444;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #f7a800;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .fab:hover {
+            background-color: #444;
+        }
+
+        /* Footer */
+
+        .svg-icon {
+            fill: white;
+            width: 20px; /* Adjust icon size */
+            height: 20px;
+            margin-right: 8px; /* Align icon with text */
+        }
+
+        /* Align the icons and text properly inside the buttons */
+        .button svg, .fab svg {
+            margin: 0;
+            padding-right: 4px;
+            align-self: center;
+        }
+        .home {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #f7a800;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .home:hover {
+            background-color: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title">Attendance Logs</h1>
+        <table id="attendanceTable">
+            <thead>
+                <tr>
+                    <th>NAME</th>
+                    <th>ROLL</th>
+                    <th>CLASS</th>
+                    <th>ID</th>
+                    <th>SECTION</th>
+                    <th>TIME</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            </tbody>
+        </table>
+
+        
+        <div class="button-container">
+            <button class="button" onclick="goBack()">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="svg-icon">
+                    <path d="M19 12H5M5 12L9 16M5 12L9 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back
+            </button>
+            <button class="button" onclick="saveAsCSV()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M19 3H5C4.44772 3 4 3.44772 4 4V20C4 20.5523 4.44772 21 5 21H19C19.5523 21 20 20.5523 20 20V7L16 3H5Z" fill="#000"/>
+                    <path d="M13 3V8H6V3H13Z" fill="white"/>
+                    <path d="M7 14H17V19H7V14Z" fill="#fff"/>
+                  </svg>                            
+                Save as CSV
+            </button>
+        </div>
+    </div>
+
+    
+    <button class="home" onclick="home()">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
+            <path d="M9 19V12h6v7"></path>
+        </svg>
+        
+        
+    </button>
+
+    <script>
+        function home() {
+            window.location.href = "/";
+        }
+        function numberToOrdinal(n) {
+            if (typeof n !== 'number' || isNaN(n)) return `${n}`;
+            const suffixes = ['th', 'st', 'nd', 'rd'];
+            const remainder = n % 100;
+            const suffix = (remainder >= 11 && remainder <= 13) ? 'th' : suffixes[(n % 10) > 3 ? 0 : (n % 10)];
+            return `${n}${suffix}`;
+        }
+        function interpretDate(inputDate) {
+            const [day, month, year] = inputDate.split('-').map(Number);
+            const input = new Date(year, month - 1, day);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+
+
+            if (input.toDateString() === today.toDateString()) {
+                return "Today";
+            } else if (input.toDateString() === yesterday.toDateString()) {
+                return "Yesterday";
+            } else if (input.getTime() >= today.getTime() - (7 * 24 * 60 * 60 * 1000)) {
+                return input.toLocaleDateString('en-US', { weekday: 'long' });
+            } else {
+                const monthName = input.toLocaleDateString('en-US', { month: 'long' });
+                return `${numberToOrdinal(Number(day))} ${monthName} ${year}`;
+            }
+        }
+        function setTitle() {
+            const el = document.getElementById('title')
+            el.textContent = interpretDate(window.location.pathname.split('/')[2])
+        }
+        function displayAttendance() {
+            const tableBody = document.querySelector("#attendanceTable tbody");
+            tableBody.innerHTML = ''; 
+            fetch(window.location.pathname+'/api/data')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error fetching data: ' + response.statusText);
+                }
+                response.json()
+                .then(data => {
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        Object.values(item).forEach(value => {
+                            const td = document.createElement('td');
+                            td.textContent = value;
+                            row.appendChild(td);
+                        });
+
+                        tableBody.appendChild(row);
+                    });
+                })
+            })
+            .catch(error => {
+                    console.error('Error fetching data:', error);
+            });
+        }
+        function saveAsCSV() {
+            const headers = Object.keys(jsonData[0]);
+            const rows = jsonData.map(item => Object.values(item));
+
+            let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
+            rows.forEach(row => {
+                csvContent += row.join(",") + "\n";
+            });
+
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+            
+            if (navigator.msSaveBlob) { 
+                navigator.msSaveBlob(blob, 'attendance_logs.csv');
+            } else {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = 'attendance_logs.csv';
+
+                
+                link.click();
+            }
+        }
+
+        
+        function goBack() {
+            window.history.back();
+        }
+        setTitle()
+        displayAttendance();
+    </script>
+</body>
+</html>

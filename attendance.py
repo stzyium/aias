@@ -2,13 +2,32 @@ import cv2
 import os
 import base64
 import asyncio
+import random
 import datetime
 import json
 from utils import *
+import sys
+from pathlib import Path
 parent_folder = r"Data/TrainingImages/"
-
+tracker = True
 manage_subfolders_with_sections_windows(parent_folder)
+def rcd():
+    global tracker
+    tracker = False
+if getattr(sys, 'frozen', False):
+    base_path = Path(sys._MEIPASS)
+else:
+    base_path = Path(__file__).parent
+config = base_path / "Configs"
+web = base_path / "web"
+hascade = config / "haarcascade_frontalface_default.xml"
 
+def getRandomImage(path):
+    images = [f for f in os.listdir(path) if f.endswith(".jpg")]
+    imagepath = os.path.join(path, random.choice(images))
+    _, ff = cv2.imencode('.jpg', cv2.imread(imagepath))
+    image = base64.b64encode(ff).decode('utf-8')
+    return image
 class Attendance:
     def save(frames: list, name, roll, clas, section):
         for sample_num, frame in enumerate(frames):
@@ -22,7 +41,7 @@ class Attendance:
             os.makedirs('Data/Details')
         frames = []
         cam = cv2.VideoCapture(0)
-        harcascade_path = "Data/Configs/haarcascade_frontalface_default.xml"
+        harcascade_path = hascade
         detector = cv2.CascadeClassifier(harcascade_path)
         sample_num = 0
         folder_path = f"Data/TrainingImages/Class#{clas}/Section#{section}/Roll#{roll}"
@@ -46,14 +65,17 @@ class Attendance:
                 if sideframe != 0:
                     _, jpeg_frame = cv2.imencode('.jpg', grayimageframe)
                 else:
-                    _, jpeg_frame = cv2.imencode('.jpg', cv2.imread('Data/web/kai.png'))
+                    _, jpeg_frame = cv2.imencode('.jpg', cv2.imread(web / "kai.png"))
                 sidecm = base64.b64encode(jpeg_frame).decode('utf-8')
                 fgray = cv2.flip(gray, 2)
                 _, jpeg_frame = cv2.imencode('.jpg', fgray)
                 key1 = 'sidecamera'
                 key = 'camera'
                 frame0 = base64.b64encode(jpeg_frame).decode('utf-8')
-                await websocket.send(json.dumps({ key: frame0, key1: sidecm, 'text': f' Capturing... {sample_num}/50' }))
+                await websocket.send(json.dumps({ key: frame0, key1: sidecm, 'text': f'Capturing... {sample_num-1}/50' }))
+            _, ff = cv2.imencode('.jpg', cv2.imread(web / "kai.png"))
+            fim = base64.b64encode(ff).decode('utf-8')
+            await websocket.send(json.dumps({ key: fim, key1: fim, 'text': f'Captured and saving required frames.' }))
         except Exception as e:
             print(f"Error in capture: {e}")
         finally:
@@ -61,33 +83,54 @@ class Attendance:
             Attendance.save(frames, name, roll, clas, section)
             frames.clear()
             data = {
-                "name": name,
-                "roll": roll,
-                "class": clas,
-                "section": section,
-                "path": folder_path
+                clas: {
+                    section: {
+                        roll: {
+                            'name': name,
+                            'captured': True,
+                            'path': folder_path,
+                            'days_attended': 0,
+                            'id': f'{roll}00{clas}00{section}'
+                        }
+                    }
+                }
             }
+
             try:
                 with open('Data/Details/registered.json', 'r') as file:
                     registered_data = json.load(file)
             except (FileNotFoundError, json.JSONDecodeError):
                 registered_data = {}
+            if clas not in registered_data:
+                registered_data[clas] = {}
 
-            registered_data[f"{roll}{clas}{section}"] = data
+            if section not in registered_data[clas]:
+                registered_data[clas][section] = {}
 
+            registered_data[clas][section][roll] = {
+                'name': name,
+                'captured': True,
+                'path': folder_path,
+                'days_attended': 0,
+                'id': f'{roll}00{clas}00{section}'
+            }
             with open('Data/Details/registered.json', 'w') as file:
                 json.dump(registered_data, file, indent=4)
 
     async def trackImage(websocket):
+        global tracker
+        tracker = True
         recognizer = cv2.face.LBPHFaceRecognizer_create()
         recognizer.read("Data/Trained.yml")
-        faceCascade = cv2.CascadeClassifier("Data/Configs/haarcascade_frontalface_default.xml")
+        faceCascade = cv2.CascadeClassifier(hascade)
 
         with open('Data/Details/registered.json', 'r') as file:
             student_data = json.load(file)
 
         def initDate():
             date = datetime.datetime.now().strftime('%d-%m-%Y')
+            if not os.path.exists('Data/At'):
+                os.makedirs('Data/At')
             filepath = f'Data/At/{date}.json'
             if not os.path.exists(filepath):
                 with open(filepath, 'w') as file:
@@ -113,7 +156,8 @@ class Attendance:
             ret, img = cam.read()
             if not ret:
                 continue
-
+            if not tracker:
+                break
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             faces = faceCascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
             name, roll = 'Unknown', '0'
@@ -123,25 +167,33 @@ class Attendance:
 
                 if conf < 60:
                     student_id = inttoid(Id)
-                    if student_id in student_data:
-                        student_info = student_data[student_id]
-                        name = student_info['name']
-                        roll = student_info['roll']
+                    if not student_id.count('0') >= 4:
+                        continue
+                    roll, clss, sec = student_id.split('00')
+                    ids = [roll["id"] for class_key in student_data.values() for section_key in class_key.values() for roll in section_key.values()]
+                    if student_id in ids:
+                        student_info = student_data
+                        
+                        name = student_info[clss][sec][roll]['name']
                         if student_id not in marked_ids:
-                            # Add attendance entry
                             timeStamp = datetime.datetime.now().strftime('%H:%M')
                             attendance_entry = {
-                                "NAME": student_info['name'],
-                                "ROLL": student_info['roll'],
-                                "CLASS": student_info['class'],
+                                "NAME": name,
+                                "ROLL": roll,
+                                "CLASS": clss,
                                 "ID": student_id,
-                                "SECTION": student_info['section'],
+                                "SECTION": sec,
                                 "TIME": timeStamp
                             }
                             attendance.append(attendance_entry)
                             writeAttendance(attendance_filepath, attendance)
                             marked_ids.add(student_id)
-                            status = f"Attendance marked for {student_info['name']} (ID: {Id})"
+                            status = f"Attendance marked for {name} (ID: {Id})"
+                            with open('Data/Details/registered.json', 'r') as file:
+                                student_data = json.load(file)
+                            with open('Data/Details/registered.json', 'w') as file:
+                                student_data[clss][sec][roll]['days_attended'] += 1
+                                json.dump(student_data, file, indent=4)
                         else:
                             status = f"Attendance already marked for ID: {Id}"
                     else:
@@ -149,7 +201,6 @@ class Attendance:
                 else:
                     status = "Face not recognizable"
 
-                cv2.flip(img, 2)
                 cv2.putText(img, status, (x, y - 10), font, 0.6, (255, 255, 255), 1)
                 cv2.putText(img, str(roll) + '; ' + name, (x, y + h + 12 ), font, 0.8, (255, 255, 255), 1)
             _, jpeg_frame = cv2.imencode('.jpg', img)
@@ -167,4 +218,4 @@ class Attendance:
         Id = [idtoint(id) for id in Id]
         recognizer.train(faces, np.array(Id))
         recognizer.save("Data/Trained.yml")
-        return 1
+        return {'trained': True}

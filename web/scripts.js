@@ -2,7 +2,9 @@ const weburl = "ws://localhost:5000";
 const socket = new WebSocket(weburl);
 const cheit = document.querySelector('.container').clientHeight;
 const imc = document.getElementById('imagecontainer');
-
+let reconnectAttempts = 0;
+const maxReconnectAttempts = 10;
+const reconnectDelay = 1000; 
 imc.style.height = `${cheit-4}px`;
 socket.onopen = () => {
   setNotification('Connected to the server... Awaiting Action...');
@@ -10,56 +12,81 @@ socket.onopen = () => {
 socket.onerror = (error) => {
 console.error("socket error:", error);
 }
+socket.onclose = () => {
+  setNotification("Websocket connection closed unexpectedly. Reconnecting...")
+  attemptReconnect();
+}
 function clearInput(id) {
   document.getElementById(id).value = '';
   setNotification(`Cleared input for ${id}!`);
 }
+function attemptReconnect() {
+  if (reconnectAttempts < maxReconnectAttempts) {
+    reconnectAttempts++;
+    const delay = reconnectDelay * reconnectAttempts; // Optional exponential backoff
+    console.log(`Attempting to reconnect in ${delay / 1000} seconds...`);
 
-function lock(what) {
-  const name = document.getElementById('name');
-  const roll = document.getElementById('roll');
-  const grade = document.getElementById('grade');
-  const section = document.getElementById('section');
-  const iname = document.getElementById('iname');
-  const iroll = document.getElementById('iroll');
-  const igrade = document.getElementById('igrade');
-  const isection = document.getElementById('isection');
-
-  if (what === 'name') {
-    name.disabled = true;
-    iname.className = 'fa fa-lock'
-  } else if (what === 'roll') {
-    roll.disabled = true;
-    iroll.className = 'fa fa-lock'
+    setTimeout(() => {
+      console.log(`Reconnecting (attempt ${reconnectAttempts})...`);
+      connectWebSocket();
+    }, delay);
+  } else {
+    console.error('Max reconnect attempts reached. Stopping reconnection.');
   }
+}
 
+function cap() {
+  window.location.href = "/dash";
 }
 
 function trackImage() {
-  const ar = {
-    type: "track"
-  };
+  const ar = { type: "track" };
   const json = JSON.stringify(ar);
+
   if (socket.readyState === WebSocket.OPEN) {
     socket.send(json);
     openCamera('track');
+
+    const button = document.getElementById('track');
+    button.innerHTML = '<i class="fas fa-stop"></i> STOP';
+    button.id = 'stop';
+    
+    button.onclick = () => {
+      fetch('/api/stoptracking')
+        .then(res => {
+          if (res.ok) {
+            setNotification('Stopped tracking...');
+            const doc = document.getElementById('camera');
+            doc.src = '/kvs';
+            resetButton(button)
+          } else {
+            setNotification('Error stopping tracking.');
+          }
+        })
+        .catch(err => setNotification('Error: ' + err.message));
+    };
   } else {
-    console.error(socket.readyState);
+    console.error('WebSocket is not open. Current state:', socket.readyState);
   }
 }
-function trainImage() {
-  ar = {
-    type: 'train'
-  };
-  const json = JSON.stringify(ar);
+
+function resetButton(button) {
+  button.id = 'track';
+  button.innerHTML = '<i class="fas fa-search"></i> TRACK';
+  button.onclick = trackImage;
   
-  if (socket.readyState === WebSocket.OPEN) {
-    socket.send(json);
-    setNotification("Training request sent.");
-  } else {
-    console.error("WebSocket is not open. Current state:", socket.readyState);
-  }
 }
+
+function trainImage() {
+  setNotification("Training request sent...")
+  fetch('/api/trainmodel')
+  .then(response => response.text())
+  .then(data => {
+    setNotification(data);
+  })
+  .catch(error => console.log(error))
+}
+
 function captureImage() {
   const dname = document.getElementById('name').value.trim();
   const droll = document.getElementById('roll').value.trim();
@@ -70,8 +97,9 @@ function captureImage() {
     alertNotification("Please fill in all fields.");
     return;
   } else {
-    if (Number.isInteger(n) || !isNaN(n)) {
+    if (!(Number.isInteger(droll) || !isNaN(droll))) {
       alertNotification('Roll Number should be an integer.')
+      return;
     }
     const ar = {
       type: 'capture',
@@ -94,7 +122,6 @@ function captureImage() {
   }
 }
 
-
 function alertNotification(message) {
   const notification = document.getElementById('notification');
   notification.style.color = '#ff0000';
@@ -108,11 +135,14 @@ function setNotification(message) {
   notification.textContent = message;
 }
 
-function openCamera(type) {
+function openCamera(type, buts) {
+  setNotification("Connecting to Camera...")
   const cameraElement = document.getElementById('camera');
   const sideCamera = document.getElementById('sidecamera');
   if (type==='track') {
     sideCamera.hidden = true;
+  } else {
+    sideCamera.hidden = false;
   }
   socket.onmessage = (event) => {
     try {

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            background: #1e1e2f;
+            color: #f4f4f4;
+            overflow: hidden;
+        }
+
+        .sidebar-container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .sidebar {
+            width: 200px;
+            background: #24243e;
+            border-right: 2px solid #444;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .sidebar h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #e0e0e0;
+            text-align: center;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #9acdff;
+            font-weight: bold;
+            transition: all 0.3s ease, transform 0.2s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar ul li:hover {
+            background: linear-gradient(90deg, #3a3a5c, #4a4a6c);
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+
+        .sidebar ul li::before {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: left 0.4s ease;
+            z-index: 0;
+        }
+
+        .sidebar ul li:hover::before {
+            left: 100%;
+        }
+
+        .sidebar ul li span {
+            position: relative;
+            z-index: 1;
+        }
+
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #282838;
+            border: 1px solid #444;
+            border-left: none;
+            border-radius: 8px;
+            margin-left: 15px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .folders {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .folder {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #555;
+            border-radius: 4px;
+            background: #2e2e40;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+        }
+
+        .folder:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            background: #3a3a5c;
+        }
+
+        .folder svg {
+            width: 50px;
+            height: 50px;
+            fill: #9acdff;
+            margin-bottom: 8px;
+        }
+
+        .folder span {
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .folder {
+            animation: fadeIn 0.5s ease-in;
+        }
+        .settings-container {
+            width: 100%;
+            margin: 0 auto;
+            border-radius: 10px;
+        }
+
+        .settings-section {
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #00bcd4;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            width: 180px;
+            color: #bbb;
+        }
+
+        .input-group select,
+        .input-group input {
+            padding: 10px;
+            margin-left: 110px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
+            width: 200px;
+        }
+
+        .home {
+            position: absolute;
+            top: 10px;    
+            left: 10px;      
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;     
+            background-color: #7d7dbe;
+            color: white;
+            border: #000000;
+            padding: 10px;
+            border-radius: 100px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(17, 145, 177, 0.452);
+            }
+            .home svg {
+            align-self: center;
+            }
+            .home:hover {
+            background-color: #000000;
+            border: #000;
+        }
+        .profile-container {
+            width: 100%;
+            display: flex;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .profile-img {
+            width: 40%;
+            border-radius: 50%;
+            object-fit: cover;
+            align-self: center;
+            border: 4px solid #060208;
+            margin-right: 20px;
+        }
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .profile-name {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 7px;
+        }
+        .profile-details p {
+            font-size: 1.1em;
+            color: #B0B0B0;
+            margin: 3px 0;
+        }
+        .profile-details span {
+            font-weight: 600;
+            color: #ffffff;
+        }
+        .profile-details button {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            margin-top: 10px;
+            padding: 12px 24px;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .profile-details button:hover {
+            background-color: black;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    </style>
+</head>
+<body>
+    <div class="home" onclick="window.history.back()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"></path>
+            <path d="M9 19V12h6v7"></path>
+        </svg>
+    </div>
+    <div class="sidebar-container">
+        <div class="sidebar">
+            <h2>
+                
+            </h2>
+            <ul>
+                <li id="students">Students</li>
+                <li id="attendance">Attendance</li>
+                <li id="settings">Settings</li>
+                <li id="stats">Stats</li>
+                <!-- <li id="performance">Performance</li>-->
+                <li id="back" style="color: #f4f4f4;">Back</li> 
+            </ul>
+        </div>
+
+        <div class="main">
+            <div class="container">
+                <div class="title">Classes</div>
+                <div class="folders" id="folders-container">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const foldersContainer = document.getElementById('folders-container');
+        const container = document.querySelector('.container');
+        const backButton = document.getElementById('back');
+        const students = document.getElementById('students');
+        const attendance = document.getElementById('attendance');
+        const settings = document.getElementById('settings');
+        const title = document.querySelector('.title');
+        const stats = document.getElementById('stats');
+        const performance = document.getElementById('performance')
+        let historyStack = [];
+
+        function numberToOrdinal(n) {
+            if (typeof n !== 'number' || isNaN(n)) return `${n}`;
+            const suffixes = ['th', 'st', 'nd', 'rd'];
+            const remainder = n % 100;
+            const suffix = (remainder >= 11 && remainder <= 13) ? 'th' : suffixes[(n % 10) > 3 ? 0 : (n % 10)];
+            return `${n}${suffix}`;
+        }
+        function showStats() {
+
+        }
+        function studentDetails(cls, sec, roll) {
+            title.textContent = `Students of Class ${numberToOrdinal(Number(cls))} ${sec}`;
+            foldersContainer.innerHTML = '';
+            fetch(`/api/students?class=${cls}&section=${sec}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(res.statusText);
+                }
+                return res.json()
+                .then(data => {
+                    let name = data[roll].name;
+                    let attendednum = data[roll].days_attended;
+                    fetch(`/api/pfp?class=${cls}&section=${sec}&roll=${roll}`)
+                    .then(res => res.json().then(data => {
+                        const picture = JSON.parse(data)["image"]
+                        let path = JSON.parse(data)["path"]
+                        const profile = document.createElement('div');
+                        profile.className = 'profile-container';
+                        
+                        profile.innerHTML = `
+                            <img class="profile-img" src="data:image/jpeg;base64,${picture}" alt="Profile Picture">
+                            <div class="profile-details">
+                                <div class="profile-name">${name}</div>
+                                <p><span>Class:</span> ${numberToOrdinal(Number(cls))} ${sec}</p>
+                                <p><span>Roll Number:</span> ${roll}</p>
+                                <p><span>Attended:</span> ${attendednum} ${attendednum == 1 ? 'Day' : 'Days'}</p>
+                                <button id="viewimage">View Images</button>
+                            </div>
+                        `
+                        foldersContainer.appendChild(profile);
+                        document.getElementById('viewimage').onclick = () => {window.location.href = `images/view?cls=${cls}&sec=${sec}&roll=${roll}`}
+                        
+                    }));
+                })
+            })
+        }
+        function loadStudents(cls, sec) {
+            title.textContent = `Students of Class ${numberToOrdinal(Number(cls))} ${sec}`;
+            foldersContainer.innerHTML = '';
+            fetch(`/api/students?class=${cls}&section=${sec}`)
+            .then(response => {
+                if (!response.ok) {
+                    title.textContent = "No Registered Section Found";
+                    console.log("no classes found");
+                    throw new Error('Network response was not ok');
+                }
+                response.json()
+                .then(data => {
+                    console.log(data)
+                    Object.keys(data).forEach((roll, index) => {
+                        const folderDiv = document.createElement('div');
+                        folderDiv.className = 'folder';
+                        folderDiv.innerHTML = `
+                            <svg fill="#8c00ff" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32.014 32.014" xml:space="preserve" stroke="#fff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M23.981,18.383H8.07c-2.943,0-5.346,2.354-5.346,5.297v8.334h10.484l1.575-8.578c0.059-0.321,0.34-0.558,0.668-0.558 l-1.46-2.485c-0.064-0.109-0.065-0.246-0.002-0.355c0.064-0.109,0.181-0.178,0.308-0.178h4.012c0.129,0,0.247,0.068,0.312,0.181 c0.062,0.112,0.061,0.249-0.007,0.356l-1.512,2.484h0.006c0.323,0,0.604,0.229,0.666,0.547l1.713,8.586h9.802v-8.332 C29.283,20.734,26.924,18.383,23.981,18.383z"></path> <circle cx="16.025" cy="7.635" r="7.635"></circle> </g> </g> </g></svg>
+                            <span>Roll ${roll}</span>`;
+                        folderDiv.id = ``;
+
+                        folderDiv.onclick = () => {
+                            historyStack.push({ type: 'section', cls, sec });
+                            studentDetails(cls, sec, roll);
+                            updateBackButtonVisibility();
+                        };
+
+                        foldersContainer.appendChild(folderDiv);
+                    });
+                });
+            });
+        }
+        function renderSections(cls) {
+            title.textContent = `Sections of Class ${numberToOrdinal(Number(cls))}`;
+            foldersContainer.innerHTML = '';
+            fetch(`/api/sections?class=${cls}`)
+            .then(response => {
+                if (!response.ok) {
+                    title.textContent = "No Registered Section Found";
+                    console.log("no classes found");
+                    throw new Error('Network response was not ok');
+                }
+                response.json()
+                .then(data => {
+                    JSON.parse(data).forEach((folder, index) => {
+                        const folderDiv = document.createElement('div');
+                        folderDiv.className = 'folder';
+                        folderDiv.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/>
+                            </svg>
+                            <span>${folder}</span>`;
+                        folderDiv.id = `class_${cls}_section_${folder}`
+
+                        folderDiv.onclick = () => {
+                            historyStack.push({ type: 'class', cls });
+                            loadStudents(cls, folder);
+                            updateBackButtonVisibility();
+                        };
+                        foldersContainer.appendChild(folderDiv);
+                    });
+                });
+            });
+        }
+        function renderFolders() {
+            title.textContent = "Classes";
+            foldersContainer.innerHTML = '';
+            fetch('/api/classes')
+            .then(response => {
+                if (!response.ok) {
+                    title.textContent = "No Registered Classes Found";
+                    console.log("no classes found");
+                    throw new Error('Network response was not ok');
+                }
+                response.json()
+                .then(data => {
+                    JSON.parse(data).forEach((folder, index) => {
+                        const folderDiv = document.createElement('div');
+                        folderDiv.className = 'folder';
+                        folderDiv.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/>
+                            </svg>
+                            <span>${numberToOrdinal(Number(folder))}</span>`;
+                        folderDiv.id = `class_${folder}`
+
+                        folderDiv.onclick = () => {
+                            historyStack.push({ type: 'home' });
+                            renderSections(folder);
+                            updateBackButtonVisibility();
+                        };
+
+                        foldersContainer.appendChild(folderDiv);
+                    });
+                })
+            })
+            
+        }
+        function getDates(url) {
+            return fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json()
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+        }
+        function atDateFolders() {
+            title.textContent = "Attendance";
+            foldersContainer.innerHTML = ''; 
+            getDates('/attendance/get')
+                .then(data => {
+                    let dates = JSON.parse(data)["dates"];
+                    console.log(dates); 
+                    if (JSON.stringify(dates) == JSON.stringify([])) {
+                        title.textContent = "No Attendance Data Found";
+                        throw new Error('NO ATTENDANCE FOUND');
+                    }
+                    dates.forEach(date => {
+                        const folderDiv = document.createElement('div');
+                        folderDiv.className = 'folder';
+                        folderDiv.id = date;
+                        
+                        folderDiv.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-4-6H7v-1h8v1zm0-2H7v-1h8v1zm0-2H7v-1h8v1z"/>
+                            </svg>
+                            <span>${interpretDate(date)}</span>
+                        `;
+
+                        
+                        folderDiv.onclick = () => {
+                            window.location.href = `/attendance/${date}`
+                            
+                        };
+
+                        foldersContainer.appendChild(folderDiv);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching dates:', error);
+                });
+        }
+
+
+        function interpretDate(inputDate) {
+            const [day, month, year] = inputDate.split('-').map(Number);
+            const input = new Date(year, month - 1, day);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+
+
+            if (input.toDateString() === today.toDateString()) {
+                return "Today";
+            } else if (input.toDateString() === yesterday.toDateString()) {
+                return "Yesterday";
+            } else if (input.getTime() >= today.getTime() - (7 * 24 * 60 * 60 * 1000)) {
+                return input.toLocaleDateString('en-US', { weekday: 'long' });
+            } else {
+                const monthName = input.toLocaleDateString('en-US', { month: 'long' });
+                return `${day} ${monthName.slice(0, 3)} ${year}`;
+            }
+        }
+
+        function onBack() {
+            if (historyStack.length > 0) {
+                const lastState = historyStack.pop();
+                if (lastState.type === 'home') {
+                    renderFolders();
+                } else if (lastState.type === 'class') {
+                    renderSections(lastState.cls);
+                } else if (lastState.type === 'section') {
+                    loadStudents(lastState.cls, lastState.sec);
+                } else if (lastState.type === 'students') {
+
+                }
+                updateBackButtonVisibility();
+            }
+        }
+
+        function updateBackButtonVisibility() {
+            
+            backButton.style.display = historyStack.length > 0 ? 'block' : 'none';
+        }
+        function settingsDisplay() {
+            title.textContent = "Settings";
+            foldersContainer.innerHTML = ''; 
+
+            
+            const settingsContainer = document.createElement('div');
+            settingsContainer.className = 'settings-container';
+
+            
+            const classifierSection = document.createElement('div');
+            classifierSection.className = 'settings-section';
+
+            const classifierHeader = document.createElement('div');
+            classifierHeader.className = 'section-header';
+            classifierHeader.textContent = 'Face Classifier';
+            classifierSection.appendChild(classifierHeader);
+
+            const classifierModelGroup = document.createElement('div');
+            classifierModelGroup.className = 'input-group';
+            const classifierModelLabel = document.createElement('label');
+            classifierModelLabel.setAttribute('for', 'classifier-model');
+            classifierModelLabel.textContent = 'Classifier Model:';
+            const classifierModelSelect = document.createElement('select');
+            classifierModelSelect.id = 'classifier-model';
+            ['LBPH Recognizer'].forEach(optionText => {
+                const option = document.createElement('option');
+                option.textContent = optionText;
+                classifierModelSelect.appendChild(option);
+            });
+            classifierModelGroup.appendChild(classifierModelLabel);
+            classifierModelGroup.appendChild(classifierModelSelect);
+
+            const confidenceGroup = document.createElement('div');
+            confidenceGroup.className = 'input-group';
+            const confidenceLabel = document.createElement('label');
+            confidenceLabel.setAttribute('for', 'confidence-threshold');
+            confidenceLabel.textContent = 'Confidence Threshold:';
+            const confidenceInput = document.createElement('input');
+            confidenceInput.type = 'number';
+            confidenceInput.id = 'confidence-threshold';
+            confidenceInput.min = '0';
+            confidenceInput.max = '1';
+            confidenceInput.step = '0.01';
+            confidenceInput.value = '0.5';
+            confidenceGroup.appendChild(confidenceLabel);
+            confidenceGroup.appendChild(confidenceInput);
+
+            classifierSection.appendChild(classifierModelGroup);
+            classifierSection.appendChild(confidenceGroup);
+            
+            
+            const detectorSection = document.createElement('div');
+            detectorSection.className = 'settings-section';
+
+            const detectorHeader = document.createElement('div');
+            detectorHeader.className = 'section-header';
+            detectorHeader.textContent = 'Face Detector';
+            detectorSection.appendChild(detectorHeader);
+
+            const detectorAlgorithmGroup = document.createElement('div');
+            detectorAlgorithmGroup.className = 'input-group';
+            const detectorAlgorithmLabel = document.createElement('label');
+            detectorAlgorithmLabel.setAttribute('for', 'detector-algorithm');
+            detectorAlgorithmLabel.textContent = 'Detection Algorithm:';
+            const detectorAlgorithmSelect = document.createElement('select');
+            detectorAlgorithmSelect.id = 'detector-algorithm';
+            ['Haar Cascade', 'HOG', 'CNN'].forEach(optionText => {
+                const option = document.createElement('option');
+                option.textContent = optionText;
+                detectorAlgorithmSelect.appendChild(option);
+            });
+            detectorAlgorithmGroup.appendChild(detectorAlgorithmLabel);
+            detectorAlgorithmGroup.appendChild(detectorAlgorithmSelect);
+
+            const detectionThresholdGroup = document.createElement('div');
+            detectionThresholdGroup.className = 'input-group';
+            const detectionThresholdLabel = document.createElement('label');
+            detectionThresholdLabel.setAttribute('for', 'detection-threshold');
+            detectionThresholdLabel.textContent = 'Detection Threshold:';
+            const detectionThresholdInput = document.createElement('input');
+            detectionThresholdInput.type = 'number';
+            detectionThresholdInput.id = 'detection-threshold';
+            detectionThresholdInput.min = '0';
+            detectionThresholdInput.max = '1';
+            detectionThresholdInput.step = '0.01';
+            detectionThresholdInput.value = '0.6';
+            detectionThresholdGroup.appendChild(detectionThresholdLabel);
+            detectionThresholdGroup.appendChild(detectionThresholdInput);
+            detectorSection.appendChild(detectorAlgorithmGroup);
+            detectorSection.appendChild(detectionThresholdGroup);            
+            settingsContainer.appendChild(classifierSection);
+            settingsContainer.appendChild(detectorSection);           
+            foldersContainer.appendChild(settingsContainer);
+        }
+  
+        backButton.addEventListener('click', onBack);
+        students.addEventListener('click', renderFolders);
+        attendance.addEventListener('click', atDateFolders);
+        settings.addEventListener('click', settingsDisplay);
+        stats.addEventListener('click', showStats)
+
+        
+        renderFolders();
+        updateBackButtonVisibility();
+    </script>
+</body>
+</html>

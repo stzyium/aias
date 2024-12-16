@@ -2,6 +2,7 @@ import os
 from PIL import Image
 import json
 import numpy as np
+import time
 
 def manage_subfolders_with_sections_windows(folder_path):
     if not os.path.exists(folder_path):
@@ -62,11 +63,13 @@ def getImagesAndLabels():
     faces = []
     Ids = []
     for dat in data:
-        imagePath = data[dat]['path']
-        for path in os.listdir(imagePath):
-            pilImage = Image.open(os.path.join(imagePath, path)).convert('L')
-            imageNp = np.array(pilImage, 'uint8')
-            Id = dat
-            faces.append(imageNp)
-            Ids.append(Id)
+        for sec in data[dat]:
+            for roll in data[dat][sec]:
+                imagePath = data[dat][sec][roll]['path']
+                for path in os.listdir(imagePath):
+                    pilImage = Image.open(os.path.join(imagePath, path)).convert('L')
+                    imageNp = np.array(pilImage, 'uint8')
+                    Id = data[dat][sec][roll]['id']
+                    faces.append(imageNp)
+                    Ids.append(Id)
     return faces, Ids
