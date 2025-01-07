@@ -1,6 +1,5 @@
 # Aias
  Ai based Smart adn Automated Attendance System
- Author: @styy210
 ### PyInstaller build command
  ```bash
  pyinstaller --onefile --add-data "web;web/" --add-data "Configs;Configs/"--icon=icon.ico --name=aias-build  __main__.py --optimize=2 --clean
