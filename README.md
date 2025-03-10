@@ -24,5 +24,5 @@
 - Now using Api for some tasks instead of websocket
 - Improved performance
 - Default HTTP port to 8000
-- Students registration JSON format
+- Students registration in JSON format
 - and more
